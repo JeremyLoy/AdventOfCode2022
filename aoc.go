@@ -13,6 +13,7 @@ type Elf struct {
 	calories int
 }
 
+// GetElves returns a list of all elves along with the number of calories they are holding, sorted descending by calorie count
 func GetElves(r io.Reader) ([]Elf, error) {
 	scanner := bufio.NewScanner(r)
 	var elves []Elf
@@ -42,18 +43,9 @@ func GetElves(r io.Reader) ([]Elf, error) {
 	return elves, nil
 }
 
-func GetLargestElf(r io.Reader) (int, int, error) {
-	elves, err := GetElves(r)
-	if err != nil {
-		return 0, 0, err
-	}
-	return elves[0].number, elves[0].calories, nil
+func GetLargestElf(elves []Elf) Elf {
+	return elves[0]
 }
-
-func GetSumThreeLargest(r io.Reader) (int, error) {
-	elves, err := GetElves(r)
-	if err != nil {
-		return 0, err
-	}
-	return elves[0].calories + elves[1].calories + elves[2].calories, nil
+func SumThreeLargestElves(elves []Elf) int {
+	return elves[0].calories + elves[1].calories + elves[2].calories
 }
