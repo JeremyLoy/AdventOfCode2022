@@ -20,12 +20,12 @@ func TestDay1CalorieCounting(t *testing.T) {
 		}
 		largestElf := GetLargestElf(elves)
 
-		if largestElf.number != 4 {
-			t.Errorf("largest elf was %v, should have been 4", largestElf.number)
+		if largestElf.Number != 4 {
+			t.Errorf("largest elf was %v, should have been 4", largestElf.Number)
 		}
 
-		if largestElf.calories != 24_000 {
-			t.Errorf("largest count was %v, should have been 24000", largestElf.calories)
+		if largestElf.Calories != 24_000 {
+			t.Errorf("largest count was %v, should have been 24000", largestElf.Calories)
 		}
 	})
 	t.Run("part 1", func(t *testing.T) {
@@ -39,11 +39,11 @@ func TestDay1CalorieCounting(t *testing.T) {
 			t.Fatal(err)
 		}
 		largestElf := GetLargestElf(elves)
-		if largestElf.calories != 69_310 {
-			t.Errorf("incorrect count - got %v", largestElf.calories)
+		if largestElf.Calories != 69_310 {
+			t.Errorf("incorrect count - got %v", largestElf.Calories)
 		}
-		if largestElf.number != 178 {
-			t.Errorf("incorrect elf - got %v", largestElf.number)
+		if largestElf.Number != 178 {
+			t.Errorf("incorrect elf - got %v", largestElf.Number)
 		}
 	})
 	t.Run("part 2 example", func(t *testing.T) {
@@ -72,6 +72,63 @@ func TestDay1CalorieCounting(t *testing.T) {
 
 		if topThreeSum != 206_104 {
 			t.Errorf("incorrect sum - got %v", topThreeSum)
+		}
+	})
+}
+
+func TestDay2RockPaperScissors(t *testing.T) {
+	t.Parallel()
+	exampleStrategyGuide := "A Y\nB X\nC Z"
+	t.Run("part 1 example", func(t *testing.T) {
+		t.Parallel()
+		strategyGuide, err := ParseStrategyGuide(strings.NewReader(exampleStrategyGuide))
+		if err != nil {
+			t.Fatal(err)
+		}
+		score := CalculateRPSScore(strategyGuide, ModeSelf)
+		if score != 15 {
+			t.Errorf("unexpected score %v", score)
+		}
+	})
+	t.Run("part 1", func(t *testing.T) {
+		t.Parallel()
+		day2, err := testData.Open("data/day2.txt")
+		if err != nil {
+			t.Fatal(err)
+		}
+		strategyGuide, err := ParseStrategyGuide(day2)
+		if err != nil {
+			t.Fatal(err)
+		}
+		score := CalculateRPSScore(strategyGuide, ModeSelf)
+		if score != 14_827 {
+			t.Errorf("unexpected score %v", score)
+		}
+	})
+	t.Run("part 2 example", func(t *testing.T) {
+		t.Parallel()
+		strategyGuide, err := ParseStrategyGuide(strings.NewReader(exampleStrategyGuide))
+		if err != nil {
+			t.Fatal(err)
+		}
+		score := CalculateRPSScore(strategyGuide, ModeOutcome)
+		if score != 12 {
+			t.Errorf("unexpected score %v", score)
+		}
+	})
+	t.Run("part 2", func(t *testing.T) {
+		t.Parallel()
+		day2, err := testData.Open("data/day2.txt")
+		if err != nil {
+			t.Fatal(err)
+		}
+		strategyGuide, err := ParseStrategyGuide(day2)
+		if err != nil {
+			t.Fatal(err)
+		}
+		score := CalculateRPSScore(strategyGuide, ModeOutcome)
+		if score != 13_889 {
+			t.Errorf("unexpected score %v", score)
 		}
 	})
 }
