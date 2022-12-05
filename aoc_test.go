@@ -132,3 +132,56 @@ func TestDay2RockPaperScissors(t *testing.T) {
 		}
 	})
 }
+
+func TestDay3RucksackReorganization(t *testing.T) {
+	t.Parallel()
+	exampleRucksacks := "vJrwpWtwJgWrhcsFMMfFFhFp\njqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL\nPmmdzqPrVvPwwTWBwg\nwMqvLMZHhHMvwLHjbvcjnnSBnvTQFn\nttgJtRGJQctTZtZT\nCrZsJsPPZsGzwwsLwLmpwMDw"
+	t.Run("example 1", func(t *testing.T) {
+		t.Parallel()
+		priority, err := SumPriority(strings.NewReader(exampleRucksacks))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if priority != 157 {
+			t.Errorf("unexpected priority %v", priority)
+		}
+	})
+	t.Run("part 1", func(t *testing.T) {
+		t.Parallel()
+		day3, err := testData.Open("data/day3.txt")
+		if err != nil {
+			t.Fatal(err)
+		}
+		priority, err := SumPriority(day3)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if priority != 8_176 {
+			t.Errorf("unexpected priority %v", priority)
+		}
+	})
+	t.Run("example 2", func(t *testing.T) {
+		t.Parallel()
+		priority, err := SumBadgePriority(strings.NewReader(exampleRucksacks))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if priority != 70 {
+			t.Errorf("unexpected priority %v", priority)
+		}
+	})
+	t.Run("part 2", func(t *testing.T) {
+		t.Parallel()
+		day3, err := testData.Open("data/day3.txt")
+		if err != nil {
+			t.Fatal(err)
+		}
+		priority, err := SumBadgePriority(day3)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if priority != 2_689 {
+			t.Errorf("unexpected priority %v", priority)
+		}
+	})
+}

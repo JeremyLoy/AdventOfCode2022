@@ -77,10 +77,10 @@ func NewShape(s string) Shape {
 type Outcome int
 
 const (
-	UnknownOutcome = iota
-	Lose
-	Draw
-	Win
+	UnknownOutcome Outcome = -1
+	Lose           Outcome = 0
+	Draw           Outcome = 3
+	Win            Outcome = 6
 )
 
 func NewOutcome(s string) Outcome {
@@ -105,22 +105,20 @@ type RPSRound struct {
 func (r RPSRound) Score(mode StrategyGuideMode) int {
 	switch mode {
 	case ModeSelf:
-		var outcome int
+		var outcome Outcome
 		switch r.Self - r.Opponent {
 		case 0:
-			outcome = 3
+			outcome = Draw
 		case 1, -2:
-			outcome = 6
+			outcome = Win
 		case -1, 2:
-			outcome = 0
+			outcome = Lose
 		}
-		return int(r.Self) + outcome
+		return int(r.Self) + int(outcome)
 	case ModeOutcome:
-		var outcome int
 		var choice Shape
 		switch r.Outcome {
 		case Lose:
-			outcome = 0
 			switch r.Opponent {
 			case Scissors:
 				choice = Paper
@@ -130,20 +128,11 @@ func (r RPSRound) Score(mode StrategyGuideMode) int {
 				choice = Rock
 			}
 		case Draw:
-			outcome = 3
 			choice = r.Opponent
 		case Win:
-			outcome = 6
-			switch r.Opponent {
-			case Scissors:
-				choice = Rock
-			case Rock:
-				choice = Paper
-			case Paper:
-				choice = Scissors
-			}
+			choice = r.Opponent%3 + 1
 		}
-		return int(choice) + outcome
+		return int(choice) + int(r.Outcome)
 	default:
 		return 0
 	}
@@ -182,4 +171,65 @@ func CalculateRPSScore(strategyGuide []RPSRound, mode StrategyGuideMode) int {
 		total += round.Score(mode)
 	}
 	return total
+}
+
+type Rucksack string
+
+var priorityAlphabet = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func Priority(rucksack string) int {
+	mid := len(rucksack) / 2
+	before, after := rucksack[mid:], rucksack[:mid]
+	// alternatively, call BadgePriority with [before,after]
+	r := before[strings.IndexAny(before, after)]
+	return strings.IndexByte(string(priorityAlphabet), r) + 1
+}
+
+func BadgePriority(rucksacks []string) int {
+	seen := make(map[rune]map[int]struct{})
+	for i, rucksack := range rucksacks {
+		for _, r := range rucksack {
+			if _, ok := seen[r]; !ok {
+				seen[r] = make(map[int]struct{})
+			} 
+			seen[r][i] = struct{}{}
+		}
+	}
+	// should only have one seen in all 
+	for r, v := range seen {
+		if len(v) == len(rucksacks) {
+			return strings.IndexRune(string(priorityAlphabet), r) + 1
+		}
+	}
+	return -1
+}
+
+func SumPriority(r io.Reader) (int, error) {
+	var sum int
+	scanner := bufio.NewScanner(r)
+	for scanner.Scan() {
+		sum += Priority(scanner.Text())
+	}
+	if err := scanner.Err(); err != nil {
+		return 0, err
+	}
+	return sum, nil
+}
+
+func SumBadgePriority(r io.Reader) (int, error) {
+	var sum int
+	scanner := bufio.NewScanner(r)
+	var rucksacks []string
+	for scanner.Scan() {
+		rucksacks = append(rucksacks, scanner.Text())
+		if len(rucksacks) == 3 {
+			sum += BadgePriority(rucksacks)
+			rucksacks = nil
+			continue
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return 0, err
+	}
+	return sum, nil
 }
