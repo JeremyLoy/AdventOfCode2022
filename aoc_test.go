@@ -136,7 +136,7 @@ func TestDay2RockPaperScissors(t *testing.T) {
 func TestDay3RucksackReorganization(t *testing.T) {
 	t.Parallel()
 	exampleRucksacks := "vJrwpWtwJgWrhcsFMMfFFhFp\njqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL\nPmmdzqPrVvPwwTWBwg\nwMqvLMZHhHMvwLHjbvcjnnSBnvTQFn\nttgJtRGJQctTZtZT\nCrZsJsPPZsGzwwsLwLmpwMDw"
-	t.Run("example 1", func(t *testing.T) {
+	t.Run("part 1 example", func(t *testing.T) {
 		t.Parallel()
 		priority, err := SumPriority(strings.NewReader(exampleRucksacks))
 		if err != nil {
@@ -160,7 +160,7 @@ func TestDay3RucksackReorganization(t *testing.T) {
 			t.Errorf("unexpected priority %v", priority)
 		}
 	})
-	t.Run("example 2", func(t *testing.T) {
+	t.Run("part 2 example", func(t *testing.T) {
 		t.Parallel()
 		priority, err := SumBadgePriority(strings.NewReader(exampleRucksacks))
 		if err != nil {
@@ -182,6 +182,63 @@ func TestDay3RucksackReorganization(t *testing.T) {
 		}
 		if priority != 2_689 {
 			t.Errorf("unexpected priority %v", priority)
+		}
+	})
+}
+
+func TestDay4CampCleanup(t *testing.T) {
+	t.Parallel()
+	exampleAssignments := "2-4,6-8\n2-3,4-5\n5-7,7-9\n2-8,3-7\n6-6,4-6\n2-6,4-8"
+	t.Run("part 1 example", func(t *testing.T) {
+		t.Parallel()
+		assignments, err := ParseAssignments(strings.NewReader(exampleAssignments))
+		if err != nil {
+			t.Fatal(err)
+		}
+		sum := SumFullyOverlaps(assignments)
+		if sum != 2 {
+			t.Errorf("unexpected sum of fully overlaps %v", sum)
+		}
+	})
+	t.Run("part 1", func(t *testing.T) {
+		t.Parallel()
+		day4, err := testData.Open("data/day4.txt")
+		if err != nil {
+			t.Fatal(err)
+		}
+		assignments, err := ParseAssignments(day4)
+		if err != nil {
+			t.Fatal(err)
+		}
+		sum := SumFullyOverlaps(assignments)
+		if sum != 466 {
+			t.Errorf("unexpected sum of fully overlaps %v", sum)
+		}
+	})
+	t.Run("part 2 example", func(t *testing.T) {
+		t.Parallel()
+		assignments, err := ParseAssignments(strings.NewReader(exampleAssignments))
+		if err != nil {
+			t.Fatal(err)
+		}
+		sum := SumOverlappingSections(assignments)
+		if sum != 4 {
+			t.Errorf("unexpected sum of overlapping sections %v", sum)
+		}
+	})
+	t.Run("part 2", func(t *testing.T) {
+		t.Parallel()
+		day4, err := testData.Open("data/day4.txt")
+		if err != nil {
+			t.Fatal(err)
+		}
+		assignments, err := ParseAssignments(day4)
+		if err != nil {
+			t.Fatal(err)
+		}
+		sum := SumOverlappingSections(assignments)
+		if sum != 865 {
+			t.Errorf("unexpected sum of overlapping sections %v", sum)
 		}
 	})
 }

@@ -191,11 +191,11 @@ func BadgePriority(rucksacks []string) int {
 		for _, r := range rucksack {
 			if _, ok := seen[r]; !ok {
 				seen[r] = make(map[int]struct{})
-			} 
+			}
 			seen[r][i] = struct{}{}
 		}
 	}
-	// should only have one seen in all 
+	// should only have one seen in all
 	for r, v := range seen {
 		if len(v) == len(rucksacks) {
 			return strings.IndexRune(string(priorityAlphabet), r) + 1
@@ -232,4 +232,88 @@ func SumBadgePriority(r io.Reader) (int, error) {
 		return 0, err
 	}
 	return sum, nil
+}
+
+type Assignment struct {
+	Start int
+	End   int
+}
+
+func (a Assignment) FullyContains(b Assignment) bool {
+	return b.Start <= a.End && b.Start >= a.Start && b.End <= a.End && b.End >= a.Start
+}
+
+
+type AssignmentPair struct {
+	Left  Assignment
+	Right Assignment
+}
+
+func (a AssignmentPair) String() string {
+	return fmt.Sprintf("%v-%v,%v-%v", a.Left.Start, a.Left.End, a.Right.Start, a.Right.End)
+}
+
+func (p AssignmentPair) FullyContains() bool {
+	return p.Left.FullyContains(p.Right) || p.Right.FullyContains(p.Left)
+}
+
+// OverlappingSections returns the count of overlapping sections of the pair. Its not actually used in AoC, but
+// I wrote it by accident after misreading the prompt. I kept it as an implementation detail of [AssignmentPair.HasOverlappingSections]
+func (p AssignmentPair) OverlappingSections() int {
+	s := p.String()
+	_ = s
+	if p.Left.FullyContains(p.Right) {
+		return p.Right.End - p.Right.Start + 1
+	}
+	if p.Right.FullyContains(p.Left) {
+		return p.Left.End - p.Left.Start + 1
+	}
+	if p.Left.End >= p.Right.Start && p.Left.End <= p.Right.End{
+		return p.Left.End - p.Right.Start + 1
+	}
+	if p.Right.End >= p.Left.Start && p.Right.End <= p.Left.End {
+		return p.Right.End -  p.Left.Start + 1
+	}
+	return 0
+}
+
+func (p AssignmentPair) HasOverlappingSections() bool {
+	return p.OverlappingSections() > 0
+}
+
+func ParseAssignments(r io.Reader) ([]AssignmentPair, error) {
+	scanner := bufio.NewScanner(r)
+	var assignmentPairs []AssignmentPair
+	for scanner.Scan() {
+		var pair AssignmentPair
+		count, err := fmt.Sscanf(scanner.Text(), "%d-%d,%d-%d", &(pair.Left.Start), &(pair.Left.End), &(pair.Right.Start), &(pair.Right.End))
+		if count != 4 || err != nil {
+			return nil, fmt.Errorf("failed to scan assignment pair count: %v, err: %v", count, err)
+		}
+		assignmentPairs = append(assignmentPairs, pair)
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	return assignmentPairs, nil
+}
+
+func SumFullyOverlaps(assignments []AssignmentPair) int {
+	var sum int
+	for _, pair := range assignments {
+		if (pair.FullyContains()){
+			sum++
+		}
+	}
+	return sum
+}
+
+func SumOverlappingSections(assignments []AssignmentPair) int {
+	var sum int
+	for _, pair := range assignments {
+		if pair.HasOverlappingSections() {
+			sum++
+		}
+	}
+	return sum
 }
