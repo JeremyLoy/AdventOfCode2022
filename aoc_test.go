@@ -2,12 +2,22 @@ package aoc
 
 import (
 	"embed"
+	"io/fs"
 	"strings"
 	"testing"
 )
 
 //go:embed data
 var testData embed.FS
+
+func MustOpen(t *testing.T, name string) fs.File {
+	t.Helper()
+	file, err := testData.Open(name)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return file
+}
 
 func TestDay1CalorieCounting(t *testing.T) {
 	t.Parallel()
@@ -30,10 +40,7 @@ func TestDay1CalorieCounting(t *testing.T) {
 	})
 	t.Run("part 1", func(t *testing.T) {
 		t.Parallel()
-		day1, err := testData.Open("data/day1.txt")
-		if err != nil {
-			t.Fatal(err)
-		}
+		day1 := MustOpen(t, "data/day1.txt")
 		elves, err := GetElves(day1)
 		if err != nil {
 			t.Fatal(err)
@@ -60,10 +67,7 @@ func TestDay1CalorieCounting(t *testing.T) {
 	})
 	t.Run("part 2", func(t *testing.T) {
 		t.Parallel()
-		day1, err := testData.Open("data/day1.txt")
-		if err != nil {
-			t.Fatal(err)
-		}
+		day1 := MustOpen(t, "data/day1.txt")
 		elves, err := GetElves(day1)
 		if err != nil {
 			t.Fatal(err)
@@ -92,10 +96,7 @@ func TestDay2RockPaperScissors(t *testing.T) {
 	})
 	t.Run("part 1", func(t *testing.T) {
 		t.Parallel()
-		day2, err := testData.Open("data/day2.txt")
-		if err != nil {
-			t.Fatal(err)
-		}
+		day2 := MustOpen(t, "data/day2.txt")
 		strategyGuide, err := ParseStrategyGuide(day2)
 		if err != nil {
 			t.Fatal(err)
@@ -118,10 +119,7 @@ func TestDay2RockPaperScissors(t *testing.T) {
 	})
 	t.Run("part 2", func(t *testing.T) {
 		t.Parallel()
-		day2, err := testData.Open("data/day2.txt")
-		if err != nil {
-			t.Fatal(err)
-		}
+		day2 := MustOpen(t, "data/day2.txt")
 		strategyGuide, err := ParseStrategyGuide(day2)
 		if err != nil {
 			t.Fatal(err)
@@ -148,10 +146,7 @@ func TestDay3RucksackReorganization(t *testing.T) {
 	})
 	t.Run("part 1", func(t *testing.T) {
 		t.Parallel()
-		day3, err := testData.Open("data/day3.txt")
-		if err != nil {
-			t.Fatal(err)
-		}
+		day3 := MustOpen(t, "data/day3.txt")
 		priority, err := SumPriority(day3)
 		if err != nil {
 			t.Fatal(err)
@@ -172,10 +167,7 @@ func TestDay3RucksackReorganization(t *testing.T) {
 	})
 	t.Run("part 2", func(t *testing.T) {
 		t.Parallel()
-		day3, err := testData.Open("data/day3.txt")
-		if err != nil {
-			t.Fatal(err)
-		}
+		day3 := MustOpen(t, "data/day3.txt")
 		priority, err := SumBadgePriority(day3)
 		if err != nil {
 			t.Fatal(err)
@@ -202,10 +194,7 @@ func TestDay4CampCleanup(t *testing.T) {
 	})
 	t.Run("part 1", func(t *testing.T) {
 		t.Parallel()
-		day4, err := testData.Open("data/day4.txt")
-		if err != nil {
-			t.Fatal(err)
-		}
+		day4 := MustOpen(t, "data/day4.txt")
 		assignments, err := ParseAssignments(day4)
 		if err != nil {
 			t.Fatal(err)
@@ -228,10 +217,7 @@ func TestDay4CampCleanup(t *testing.T) {
 	})
 	t.Run("part 2", func(t *testing.T) {
 		t.Parallel()
-		day4, err := testData.Open("data/day4.txt")
-		if err != nil {
-			t.Fatal(err)
-		}
+		day4 := MustOpen(t,"data/day4.txt")
 		assignments, err := ParseAssignments(day4)
 		if err != nil {
 			t.Fatal(err)
