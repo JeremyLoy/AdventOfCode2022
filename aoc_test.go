@@ -217,7 +217,7 @@ func TestDay4CampCleanup(t *testing.T) {
 	})
 	t.Run("part 2", func(t *testing.T) {
 		t.Parallel()
-		day4 := MustOpen(t,"data/day4.txt")
+		day4 := MustOpen(t, "data/day4.txt")
 		assignments, err := ParseAssignments(day4)
 		if err != nil {
 			t.Fatal(err)

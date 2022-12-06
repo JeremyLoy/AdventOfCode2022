@@ -243,7 +243,6 @@ func (a Assignment) FullyContains(b Assignment) bool {
 	return b.Start <= a.End && b.Start >= a.Start && b.End <= a.End && b.End >= a.Start
 }
 
-
 type AssignmentPair struct {
 	Left  Assignment
 	Right Assignment
@@ -268,11 +267,11 @@ func (p AssignmentPair) OverlappingSections() int {
 	if p.Right.FullyContains(p.Left) {
 		return p.Left.End - p.Left.Start + 1
 	}
-	if p.Left.End >= p.Right.Start && p.Left.End <= p.Right.End{
+	if p.Left.End >= p.Right.Start && p.Left.End <= p.Right.End {
 		return p.Left.End - p.Right.Start + 1
 	}
 	if p.Right.End >= p.Left.Start && p.Right.End <= p.Left.End {
-		return p.Right.End -  p.Left.Start + 1
+		return p.Right.End - p.Left.Start + 1
 	}
 	return 0
 }
@@ -301,7 +300,7 @@ func ParseAssignments(r io.Reader) ([]AssignmentPair, error) {
 func SumFullyOverlaps(assignments []AssignmentPair) int {
 	var sum int
 	for _, pair := range assignments {
-		if (pair.FullyContains()){
+		if pair.FullyContains() {
 			sum++
 		}
 	}
