@@ -228,3 +228,54 @@ func TestDay4CampCleanup(t *testing.T) {
 		}
 	})
 }
+
+func TestDay5SupplyStacks(t *testing.T) {
+	t.Run("part 1 example", func(t *testing.T) {
+		day5Example := MustOpen(t, "data/day5Example.txt")
+		stacks, steps, err := ParseStacksAndSteps(day5Example)
+		if err != nil {
+			t.Fatal(err)
+		}
+		stacks = ProcessSteps(stacks, steps)
+		message := SumTopOfStacks(stacks)
+		if message != "CMZ" {
+			t.Errorf("unexpected message %v", message)
+		}
+	})
+	t.Run("part 1", func(t *testing.T) {
+		day5 := MustOpen(t, "data/day5.txt")
+		stacks, steps, err := ParseStacksAndSteps(day5)
+		if err != nil {
+			t.Fatal(err)
+		}
+		stacks = ProcessSteps(stacks, steps)
+		message := SumTopOfStacks(stacks)
+		if message != "DHBJQJCCW" {
+			t.Errorf("unexpected message %v", message)
+		}
+	})
+	t.Run("part 2 example", func(t *testing.T) {
+		day5Example := MustOpen(t, "data/day5Example.txt")
+		stacks, steps, err := ParseStacksAndSteps(day5Example)
+		if err != nil {
+			t.Fatal(err)
+		}
+		stacks = ProcessSteps9001(stacks, steps)
+		message := SumTopOfStacks(stacks)
+		if message != "MCD" {
+			t.Errorf("unexpected message %v", message)
+		}
+	})
+	t.Run("part 2", func(t *testing.T) {
+		day5 := MustOpen(t, "data/day5.txt")
+		stacks, steps, err := ParseStacksAndSteps(day5)
+		if err != nil {
+			t.Fatal(err)
+		}
+		stacks = ProcessSteps9001(stacks, steps)
+		message := SumTopOfStacks(stacks)
+		if message != "WJVRLSJJT" {
+			t.Errorf("unexpected message %v", message)
+		}
+	})
+}

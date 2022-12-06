@@ -2,6 +2,8 @@ package aoc
 
 import (
 	"bufio"
+	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"sort"
@@ -315,4 +317,89 @@ func SumOverlappingSections(assignments []AssignmentPair) int {
 		}
 	}
 	return sum
+}
+
+type Step struct {
+	Amount, From, To int
+}
+
+type Stack []string
+
+func ParseStacksAndSteps(r io.Reader) ([]Stack, []Step, error) {
+	b, err := io.ReadAll(r)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	stackHalf, stepHalf, found := bytes.Cut(b, []byte("\n\n"))
+	if !found {
+		return nil, nil, errors.New("failed to split stacks and steps")
+	}
+
+	var stacks []Stack
+	var steps []Step
+
+	stacksBytes := bytes.Split(stackHalf, []byte("\n"))
+	width := len(strings.Fields(string(stacksBytes[len(stacksBytes)-1])))
+	stacks = make([]Stack, width)
+
+	// reversed, skip the integer row as well
+	for i := len(stacksBytes) - 2; i >= 0; i-- {
+		stackBytes := stacksBytes[i]
+		var current []byte
+		for i := 0; i < width; i++ {
+			if len(stackBytes) < 4 {
+				current = stackBytes
+			} else {
+				current, stackBytes = stackBytes[:4], stackBytes[4:]
+			}
+			var letter string
+			n, err := fmt.Sscanf(string(current), "[%1s]", &letter)
+			if n != 1 || err != nil {
+				continue
+			}
+			stacks[i] = append(stacks[i], letter)
+		}
+	}
+
+	stepBytes := bytes.Split(stepHalf, []byte("\n"))
+	for _, stepBytes := range stepBytes {
+		var step Step
+		fmt.Sscanf(string(stepBytes), "move %d from %d to %d", &step.Amount, &step.From, &step.To)
+		steps = append(steps, step)
+	}
+
+	return stacks, steps, nil
+}
+
+func ProcessSteps(stacks []Stack, steps []Step) []Stack {
+	for _, step := range steps {
+		for i := 0; i < step.Amount; i++ {
+			var letter string
+			l := len(stacks[step.From-1])
+			letter, stacks[step.From-1] = stacks[step.From-1][l-1], stacks[step.From-1][:l-1]
+			stacks[step.To-1] = append(stacks[step.To-1], letter)
+		}
+	}
+	return stacks
+}
+func ProcessSteps9001(stacks []Stack, steps []Step) []Stack {
+	for _, step := range steps {
+		var substack Stack
+		fromLen := len(stacks[step.From - 1])
+		spliceTarget := fromLen - step.Amount
+		substack, stacks[step.From-1] = stacks[step.From-1][spliceTarget:], stacks[step.From-1][:spliceTarget]
+		stacks[step.To-1] = append(stacks[step.To-1], substack...)
+	}
+	return stacks
+}
+func SumTopOfStacks(stacks []Stack) string {
+	var sum []string
+	for _, stack := range stacks {
+		if len(stack) == 0 {
+			continue
+		}
+		sum = append(sum, stack[len(stack)-1])
+	}
+	return strings.Join(sum, "")
 }
