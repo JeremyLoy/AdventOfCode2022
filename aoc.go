@@ -324,7 +324,29 @@ type Step struct {
 
 type Stack []string
 
-func ParseStacksAndSteps(r io.Reader) ([]Stack, []Step, error) {
+func (s *Stack) Push(st ...string) {
+	*s = append(*s, st...)
+}
+
+func (s *Stack) Pop() string {
+	i := len(*s) - 1
+	elem := (*s)[i]
+	*s = (*s)[:i]
+	return elem
+}
+
+func (s *Stack) PopN(amount int) []string {
+	i := len(*s) - amount
+	elems := (*s)[i:]
+	*s = (*s)[:i]
+	return elems
+}
+
+func (s *Stack) Len() int {
+	return len(*s)
+}
+
+func ParseStacksAndSteps(r io.Reader) ([]*Stack, []Step, error) {
 	b, err := io.ReadAll(r)
 	if err != nil {
 		return nil, nil, err
@@ -335,12 +357,15 @@ func ParseStacksAndSteps(r io.Reader) ([]Stack, []Step, error) {
 		return nil, nil, errors.New("failed to split stacks and steps")
 	}
 
-	var stacks []Stack
+	var stacks []*Stack
 	var steps []Step
 
 	stacksStrings := strings.Split(stackHalf, "\n")
 	width := len(strings.Fields(stacksStrings[len(stacksStrings)-1]))
-	stacks = make([]Stack, width)
+	stacks = make([]*Stack, width)
+	for i := range stacks {
+		stacks[i] = new(Stack)
+	}
 
 	// reversed, skip the integer row as well
 	for i := len(stacksStrings) - 2; i >= 0; i-- {
@@ -352,12 +377,12 @@ func ParseStacksAndSteps(r io.Reader) ([]Stack, []Step, error) {
 			} else {
 				current, stackString = stackString[:4], stackString[4:]
 			}
-			var letter string
-			n, err := fmt.Sscanf(current, "[%1s]", &letter)
+			var crate string
+			n, err := fmt.Sscanf(current, "[%1s]", &crate)
 			if n != 1 || err != nil {
 				continue
 			}
-			stacks[i] = append(stacks[i], letter)
+			stacks[i].Push(crate)
 		}
 	}
 
@@ -371,34 +396,33 @@ func ParseStacksAndSteps(r io.Reader) ([]Stack, []Step, error) {
 	return stacks, steps, nil
 }
 
-func ProcessSteps(stacks []Stack, steps []Step) []Stack {
+func ProcessSteps(stacks []*Stack, steps []Step) []*Stack {
 	for _, step := range steps {
 		for i := 0; i < step.Amount; i++ {
-			var letter string
-			l := len(stacks[step.From-1])
-			letter, stacks[step.From-1] = stacks[step.From-1][l-1], stacks[step.From-1][:l-1]
-			stacks[step.To-1] = append(stacks[step.To-1], letter)
+			from := stacks[step.From-1]
+			to := stacks[step.To-1]
+			crate := from.Pop()
+			to.Push(crate)
 		}
 	}
 	return stacks
 }
-func ProcessSteps9001(stacks []Stack, steps []Step) []Stack {
+func ProcessSteps9001(stacks []*Stack, steps []Step) []*Stack {
 	for _, step := range steps {
-		var substack Stack
-		fromLen := len(stacks[step.From-1])
-		spliceTarget := fromLen - step.Amount
-		substack, stacks[step.From-1] = stacks[step.From-1][spliceTarget:], stacks[step.From-1][:spliceTarget]
-		stacks[step.To-1] = append(stacks[step.To-1], substack...)
+		from := stacks[step.From-1]
+		to := stacks[step.To-1]
+		crates := from.PopN(step.Amount)
+		to.Push(crates...)
 	}
 	return stacks
 }
-func SumTopOfStacks(stacks []Stack) string {
+func SumTopOfStacks(stacks []*Stack) string {
 	var sum []string
 	for _, stack := range stacks {
-		if len(stack) == 0 {
+		if len(*stack) == 0 {
 			continue
 		}
-		sum = append(sum, stack[len(stack)-1])
+		sum = append(sum, (*stack)[len(*stack)-1])
 	}
 	return strings.Join(sum, "")
 }
