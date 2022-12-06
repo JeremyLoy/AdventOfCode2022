@@ -328,6 +328,11 @@ func (s *Stack) Push(st ...string) {
 	*s = append(*s, st...)
 }
 
+func (s *Stack) Peek() string {
+	i := len(*s) - 1
+	return (*s)[i]
+}
+
 func (s *Stack) Pop() string {
 	i := len(*s) - 1
 	elem := (*s)[i]
@@ -361,6 +366,7 @@ func ParseStacksAndSteps(r io.Reader) ([]*Stack, []Step, error) {
 	var steps []Step
 
 	stacksStrings := strings.Split(stackHalf, "\n")
+	// count the number of integers in the final row
 	width := len(strings.Fields(stacksStrings[len(stacksStrings)-1]))
 	stacks = make([]*Stack, width)
 	for i := range stacks {
@@ -372,6 +378,7 @@ func ParseStacksAndSteps(r io.Reader) ([]*Stack, []Step, error) {
 		stackString := stacksStrings[i]
 		var current string
 		for i := 0; i < width; i++ {
+			// [Z]\w is 4 characters, but the final one is only 3. Avoid a nil pointer error
 			if len(stackString) < 4 {
 				current = stackString
 			} else {
@@ -390,6 +397,9 @@ func ParseStacksAndSteps(r io.Reader) ([]*Stack, []Step, error) {
 	for _, stepString := range stepsStrings {
 		var step Step
 		fmt.Sscanf(stepString, "move %d from %d to %d", &step.Amount, &step.From, &step.To)
+		// to zero index it all
+		step.From--
+		step.To--
 		steps = append(steps, step)
 	}
 
@@ -399,8 +409,8 @@ func ParseStacksAndSteps(r io.Reader) ([]*Stack, []Step, error) {
 func ProcessSteps(stacks []*Stack, steps []Step) []*Stack {
 	for _, step := range steps {
 		for i := 0; i < step.Amount; i++ {
-			from := stacks[step.From-1]
-			to := stacks[step.To-1]
+			from := stacks[step.From]
+			to := stacks[step.To]
 			crate := from.Pop()
 			to.Push(crate)
 		}
@@ -409,8 +419,8 @@ func ProcessSteps(stacks []*Stack, steps []Step) []*Stack {
 }
 func ProcessSteps9001(stacks []*Stack, steps []Step) []*Stack {
 	for _, step := range steps {
-		from := stacks[step.From-1]
-		to := stacks[step.To-1]
+		from := stacks[step.From]
+		to := stacks[step.To]
 		crates := from.PopN(step.Amount)
 		to.Push(crates...)
 	}
@@ -419,10 +429,7 @@ func ProcessSteps9001(stacks []*Stack, steps []Step) []*Stack {
 func SumTopOfStacks(stacks []*Stack) string {
 	var sum []string
 	for _, stack := range stacks {
-		if len(*stack) == 0 {
-			continue
-		}
-		sum = append(sum, (*stack)[len(*stack)-1])
+		sum = append(sum, stack.Peek())
 	}
 	return strings.Join(sum, "")
 }
