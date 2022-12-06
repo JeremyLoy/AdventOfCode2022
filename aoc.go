@@ -2,7 +2,6 @@ package aoc
 
 import (
 	"bufio"
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -331,7 +330,7 @@ func ParseStacksAndSteps(r io.Reader) ([]Stack, []Step, error) {
 		return nil, nil, err
 	}
 
-	stackHalf, stepHalf, found := bytes.Cut(b, []byte("\n\n"))
+	stackHalf, stepHalf, found := strings.Cut(string(b), "\n\n")
 	if !found {
 		return nil, nil, errors.New("failed to split stacks and steps")
 	}
@@ -339,22 +338,22 @@ func ParseStacksAndSteps(r io.Reader) ([]Stack, []Step, error) {
 	var stacks []Stack
 	var steps []Step
 
-	stacksBytes := bytes.Split(stackHalf, []byte("\n"))
-	width := len(strings.Fields(string(stacksBytes[len(stacksBytes)-1])))
+	stacksStrings := strings.Split(stackHalf, "\n")
+	width := len(strings.Fields(stacksStrings[len(stacksStrings)-1]))
 	stacks = make([]Stack, width)
 
 	// reversed, skip the integer row as well
-	for i := len(stacksBytes) - 2; i >= 0; i-- {
-		stackBytes := stacksBytes[i]
-		var current []byte
+	for i := len(stacksStrings) - 2; i >= 0; i-- {
+		stackString := stacksStrings[i]
+		var current string
 		for i := 0; i < width; i++ {
-			if len(stackBytes) < 4 {
-				current = stackBytes
+			if len(stackString) < 4 {
+				current = stackString
 			} else {
-				current, stackBytes = stackBytes[:4], stackBytes[4:]
+				current, stackString = stackString[:4], stackString[4:]
 			}
 			var letter string
-			n, err := fmt.Sscanf(string(current), "[%1s]", &letter)
+			n, err := fmt.Sscanf(current, "[%1s]", &letter)
 			if n != 1 || err != nil {
 				continue
 			}
@@ -362,10 +361,10 @@ func ParseStacksAndSteps(r io.Reader) ([]Stack, []Step, error) {
 		}
 	}
 
-	stepBytes := bytes.Split(stepHalf, []byte("\n"))
-	for _, stepBytes := range stepBytes {
+	stepsStrings := strings.Split(stepHalf, "\n")
+	for _, stepString := range stepsStrings {
 		var step Step
-		fmt.Sscanf(string(stepBytes), "move %d from %d to %d", &step.Amount, &step.From, &step.To)
+		fmt.Sscanf(stepString, "move %d from %d to %d", &step.Amount, &step.From, &step.To)
 		steps = append(steps, step)
 	}
 
@@ -386,7 +385,7 @@ func ProcessSteps(stacks []Stack, steps []Step) []Stack {
 func ProcessSteps9001(stacks []Stack, steps []Step) []Stack {
 	for _, step := range steps {
 		var substack Stack
-		fromLen := len(stacks[step.From - 1])
+		fromLen := len(stacks[step.From-1])
 		spliceTarget := fromLen - step.Amount
 		substack, stacks[step.From-1] = stacks[step.From-1][spliceTarget:], stacks[step.From-1][:spliceTarget]
 		stacks[step.To-1] = append(stacks[step.To-1], substack...)
