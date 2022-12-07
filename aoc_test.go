@@ -279,3 +279,52 @@ func TestDay5SupplyStacks(t *testing.T) {
 		}
 	})
 }
+
+func TestDay6TuningTrouble(t *testing.T) {
+	t.Run("part 1 example", func(t *testing.T) {
+		if start := StartOfPacket(strings.NewReader("mjqjpqmgbljsphdztnvjfqwrcgsmlb")); start != 7 {
+			t.Errorf("unexpected first start %v", start)
+		}
+		if start := StartOfPacket(strings.NewReader("bvwbjplbgvbhsrlpgdmjqwftvncz")); start != 5 {
+			t.Errorf("unexpected first start %v", start)
+		}
+		if start := StartOfPacket(strings.NewReader("nppdvjthqldpwncqszvftbrmjlhg")); start != 6 {
+			t.Errorf("unexpected first start %v", start)
+		}
+		if start := StartOfPacket(strings.NewReader("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg")); start != 10 {
+			t.Errorf("unexpected first start %v", start)
+		}
+		if start := StartOfPacket(strings.NewReader("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw")); start != 11 {
+			t.Errorf("unexpected first start %v", start)
+		}
+	})
+	t.Run("part 1", func(t *testing.T) {
+		day6 := MustOpen(t, "data/day6.txt")
+		if start := StartOfPacket(day6); start != 1042 {
+			t.Errorf("unexpected start %v", start)
+		}
+	})
+	t.Run("part 2 example", func(t *testing.T) {
+		if start := StartOfMessage(strings.NewReader("mjqjpqmgbljsphdztnvjfqwrcgsmlb")); start != 19 {
+			t.Errorf("unexpected first start %v", start)
+		}
+		if start := StartOfMessage(strings.NewReader("bvwbjplbgvbhsrlpgdmjqwftvncz")); start != 23 {
+			t.Errorf("unexpected first start %v", start)
+		}
+		if start := StartOfMessage(strings.NewReader("nppdvjthqldpwncqszvftbrmjlhg")); start != 23 {
+			t.Errorf("unexpected first start %v", start)
+		}
+		if start := StartOfMessage(strings.NewReader("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg")); start != 29 {
+			t.Errorf("unexpected first start %v", start)
+		}
+		if start := StartOfMessage(strings.NewReader("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw")); start != 26 {
+			t.Errorf("unexpected first start %v", start)
+		}
+	})
+	t.Run("part 2", func(t *testing.T) {
+		day6 := MustOpen(t, "data/day6.txt")
+		if start := StartOfMessage(day6); start != 2980 {
+			t.Errorf("unexpected start %v", start)
+		}
+	})
+}

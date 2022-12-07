@@ -433,3 +433,52 @@ func SumTopOfStacks(stacks []*Stack) string {
 	}
 	return strings.Join(sum, "")
 }
+
+type Set[T comparable] map[T]struct{}
+
+func NewSet[T comparable]() *Set[T] {
+	var set Set[T] = make(map[T]struct{})
+	return &set
+}
+
+func (s *Set[T]) Put(st ...T) {
+	for _, c := range st {
+		(*s)[c] = struct{}{}
+	}
+}
+
+func (s *Set[T]) Clear() {
+	for k := range *s {
+		delete(*s, k)
+	}
+}
+
+func (s *Set[T]) Len() int {
+	return len(*s)
+}
+
+func communicationDevice(r io.Reader, signalLength int) int {
+	reader := bufio.NewReader(r)
+	set := NewSet[byte]()
+	var i = 0
+	for {
+		b, err := reader.Peek(signalLength)
+		if err != nil {
+			return -1
+		}
+		set.Put(b...)
+		if set.Len() == signalLength {
+			return i + signalLength
+		}
+		set.Clear()
+		i++
+		reader.Discard(1)
+	}
+}
+
+func StartOfPacket(r io.Reader) int {
+	return communicationDevice(r, 4)
+}
+func StartOfMessage(r io.Reader) int {
+	return communicationDevice(r, 14)
+}
