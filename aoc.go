@@ -458,7 +458,7 @@ func (s *Set[T]) Len() int {
 }
 
 func communicationDevice(r io.Reader, signalLength int) int {
-	reader := bufio.NewReader(r)
+	reader := bufio.NewReaderSize(r, 14)
 	set := NewSet[byte]()
 	var i = 0
 	for {
@@ -472,7 +472,10 @@ func communicationDevice(r io.Reader, signalLength int) int {
 		}
 		set.Clear()
 		i++
-		reader.Discard(1)
+		_, err = reader.Discard(1)
+		if err != nil {
+			return -1
+		}
 	}
 }
 
@@ -481,4 +484,128 @@ func StartOfPacket(r io.Reader) int {
 }
 func StartOfMessage(r io.Reader) int {
 	return communicationDevice(r, 14)
+}
+
+type File struct {
+	Parent   *File
+	Children []*File
+	Name     string
+	size     int
+}
+
+func (f *File) GetDirs() []*File {
+	var dirs []*File
+	// return nil if leaf
+	if f.size != -1 {
+		return nil
+	}
+	for _, c := range f.Children {
+		dirs = append(dirs, c.GetDirs()...)
+	}
+	if f.Parent != nil {
+		dirs = append(dirs, f)
+	}
+	return dirs
+}
+
+func (f *File) Size() int {
+	// is Dir
+	if f.size != -1 {
+		return f.size
+	}
+	var sum int
+	for _, c := range f.Children {
+		sum += c.Size()
+	}
+	return sum
+}
+
+func ParseFS(r io.Reader) (*File, error) {
+	scanner := bufio.NewScanner(r)
+	root := &File{Name: "/", size: -1}
+	current := root
+
+	// skip initial cd to / and ls
+	scanner.Scan()
+	scanner.Scan()
+	for scanner.Scan() {
+		before, after, found := strings.Cut(scanner.Text(), " ")
+		if !found {
+			return nil, errors.New("bad cut")
+		}
+		if before == "$" {
+			if after == "ls" {
+				continue
+			}
+
+			if after[:2] == "cd" {
+				location := after[3:]
+				if location == ".." {
+					current = current.Parent
+					continue
+				}
+				found := false
+				for _, f := range current.Children {
+					if f.Name == location {
+						current = f
+						found = true
+						break
+					}
+				}
+				if !found {
+					return nil, fmt.Errorf("failed to cd into %v", location)
+				}
+				continue
+			}
+			return nil, fmt.Errorf("unhandled command %v", after)
+		}
+
+		// in LS
+		if before == "dir" {
+			current.Children = append(current.Children, &File{Parent: current, Name: after, size: -1})
+
+		} else {
+			i, err := strconv.Atoi(before)
+			if err != nil {
+				return nil, err
+			}
+			current.Children = append(current.Children, &File{Parent: current, Name: after, size: i})
+		}
+
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	return root, nil
+}
+
+func SumDirSize(dirs []*File) int {
+	var less []*File
+	for _, d := range dirs {
+		if d.Size() <= 100_000 {
+			less = append(less, d)
+		}
+	}
+	var sum int
+	for _, f := range less {
+		sum += f.Size()
+	}
+	return sum
+}
+
+func SmallestDirToDelete(root *File) int {
+	var dirs []*File
+	usedSpace := root.Size()
+	totalSpace := 70_000_000
+	needed := 30_000_000
+	goal := totalSpace - needed
+	for _, d := range root.GetDirs() {
+		if usedSpace-d.Size() <= goal {
+			dirs = append(dirs, d)
+		}
+	}
+	sort.Slice(dirs, func(i, j int) bool {
+		return dirs[i].Size() < dirs[j].Size()
+	})
+	return dirs[0].Size()
 }

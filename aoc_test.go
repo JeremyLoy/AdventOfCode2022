@@ -230,7 +230,9 @@ func TestDay4CampCleanup(t *testing.T) {
 }
 
 func TestDay5SupplyStacks(t *testing.T) {
+	t.Parallel()
 	t.Run("part 1 example", func(t *testing.T) {
+		t.Parallel()
 		day5Example := MustOpen(t, "data/day5Example.txt")
 		stacks, steps, err := ParseStacksAndSteps(day5Example)
 		if err != nil {
@@ -243,6 +245,7 @@ func TestDay5SupplyStacks(t *testing.T) {
 		}
 	})
 	t.Run("part 1", func(t *testing.T) {
+		t.Parallel()
 		day5 := MustOpen(t, "data/day5.txt")
 		stacks, steps, err := ParseStacksAndSteps(day5)
 		if err != nil {
@@ -255,6 +258,7 @@ func TestDay5SupplyStacks(t *testing.T) {
 		}
 	})
 	t.Run("part 2 example", func(t *testing.T) {
+		t.Parallel()
 		day5Example := MustOpen(t, "data/day5Example.txt")
 		stacks, steps, err := ParseStacksAndSteps(day5Example)
 		if err != nil {
@@ -267,6 +271,7 @@ func TestDay5SupplyStacks(t *testing.T) {
 		}
 	})
 	t.Run("part 2", func(t *testing.T) {
+		t.Parallel()
 		day5 := MustOpen(t, "data/day5.txt")
 		stacks, steps, err := ParseStacksAndSteps(day5)
 		if err != nil {
@@ -281,7 +286,9 @@ func TestDay5SupplyStacks(t *testing.T) {
 }
 
 func TestDay6TuningTrouble(t *testing.T) {
+	t.Parallel()
 	t.Run("part 1 example", func(t *testing.T) {
+		t.Parallel()
 		if start := StartOfPacket(strings.NewReader("mjqjpqmgbljsphdztnvjfqwrcgsmlb")); start != 7 {
 			t.Errorf("unexpected first start %v", start)
 		}
@@ -299,12 +306,14 @@ func TestDay6TuningTrouble(t *testing.T) {
 		}
 	})
 	t.Run("part 1", func(t *testing.T) {
+		t.Parallel()
 		day6 := MustOpen(t, "data/day6.txt")
 		if start := StartOfPacket(day6); start != 1042 {
 			t.Errorf("unexpected start %v", start)
 		}
 	})
 	t.Run("part 2 example", func(t *testing.T) {
+		t.Parallel()
 		if start := StartOfMessage(strings.NewReader("mjqjpqmgbljsphdztnvjfqwrcgsmlb")); start != 19 {
 			t.Errorf("unexpected first start %v", start)
 		}
@@ -322,9 +331,65 @@ func TestDay6TuningTrouble(t *testing.T) {
 		}
 	})
 	t.Run("part 2", func(t *testing.T) {
+		t.Parallel()
 		day6 := MustOpen(t, "data/day6.txt")
 		if start := StartOfMessage(day6); start != 2980 {
 			t.Errorf("unexpected start %v", start)
+		}
+	})
+}
+
+func TestDay7NoSpaceLeftOnDevice(t *testing.T) {
+	t.Parallel()
+	t.Run("part 1 example", func(t *testing.T) {
+		t.Parallel()
+		day7example := MustOpen(t, "data/day7example.txt")
+		root, err := ParseFS(day7example)
+		if err != nil {
+			t.Fatal(err)
+		}
+		dirs := root.GetDirs()
+		totalSize := SumDirSize(dirs)
+		if totalSize != 95_437 {
+			t.Errorf("unexpected total size %v", totalSize)
+		}
+	})
+	t.Run("part 1", func(t *testing.T) {
+		t.Parallel()
+		day7 := MustOpen(t, "data/day7.txt")
+		root, err := ParseFS(day7)
+		if err != nil {
+			t.Fatal(err)
+		}
+		dirs := root.GetDirs()
+		totalSize := SumDirSize(dirs)
+		if totalSize != 1_297_683 {
+			t.Errorf("unexpected total size %v", totalSize)
+		}
+	})
+	t.Run("part 2 example", func(t *testing.T) {
+		t.Parallel()
+		day7example := MustOpen(t, "data/day7example.txt")
+		root, err := ParseFS(day7example)
+		if err != nil {
+			t.Fatal(err)
+		}
+		deletedSize := SmallestDirToDelete(root)
+		if deletedSize != 24_933_642 {
+			t.Errorf("unexpected deleted size of %v", deletedSize)
+		}
+
+	})
+	t.Run("part 2", func(t *testing.T) {
+		t.Parallel()
+		day7 := MustOpen(t, "data/day7.txt")
+		root, err := ParseFS(day7)
+		if err != nil {
+			t.Fatal(err)
+		}
+		deletedSize := SmallestDirToDelete(root)
+		if deletedSize != 5_756_764 {
+			t.Errorf("unexpected deleted size of %v", deletedSize)
 		}
 	})
 }
