@@ -502,9 +502,8 @@ func (f *File) GetDirs() []*File {
 	for _, c := range f.Children {
 		dirs = append(dirs, c.GetDirs()...)
 	}
-	if f.Parent != nil {
-		dirs = append(dirs, f)
-	}
+	dirs = append(dirs, f)
+
 	return dirs
 }
 
@@ -525,8 +524,7 @@ func ParseFS(r io.Reader) (*File, error) {
 	root := &File{Name: "/", size: -1}
 	current := root
 
-	// skip initial cd to / and ls
-	scanner.Scan()
+	// skip initial cd to /
 	scanner.Scan()
 	for scanner.Scan() {
 		before, after, found := strings.Cut(scanner.Text(), " ")
@@ -571,7 +569,6 @@ func ParseFS(r io.Reader) (*File, error) {
 			}
 			current.Children = append(current.Children, &File{Parent: current, Name: after, size: i})
 		}
-
 	}
 	if err := scanner.Err(); err != nil {
 		return nil, err
