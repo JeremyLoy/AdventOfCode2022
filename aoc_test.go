@@ -417,7 +417,7 @@ func TestDay8TreetopTreeHouse(t *testing.T) {
 			t.Fatal(err)
 		}
 		visible, _ := CountVisibleAndScore(grid)
-		if visible != 1560 {
+		if visible != 1_560 {
 			t.Errorf("unexpected visible count %v", visible)
 		}
 	})
@@ -441,7 +441,7 @@ func TestDay8TreetopTreeHouse(t *testing.T) {
 			t.Fatal(err)
 		}
 		_, score := CountVisibleAndScore(grid)
-		if score != 8 {
+		if score != 252_000 {
 			t.Errorf("unexpected visibity score %v", score)
 		}
 	})

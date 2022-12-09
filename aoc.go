@@ -607,19 +607,19 @@ func SmallestDirToDelete(root *File) int {
 	return dirs[0].Size()
 }
 
-func ParseGrid(r io.Reader) ([][]int, error) {
+type Point struct {
+	X, Y int
+}
+
+func ParseGrid(r io.Reader) (map[Point]int, error) {
 	scanner := bufio.NewScanner(r)
-	var grid [][]int
+	grid := make(map[Point]int)
+	var y int
 	for scanner.Scan() {
-		var row []int
-		for _, treeS := range scanner.Text() {
-			tree, err := strconv.Atoi(string(treeS))
-			if err != nil {
-				return nil, err
-			}
-			row = append(row, tree)
+		for x, tree := range scanner.Text() {
+			grid[Point{X: x, Y: y}] = int(tree - '0')
 		}
-		grid = append(grid, row)
+		y++
 	}
 	if err := scanner.Err(); err != nil {
 		return nil, err
@@ -627,67 +627,70 @@ func ParseGrid(r io.Reader) ([][]int, error) {
 	return grid, nil
 }
 
-func CountVisibleAndScore(grid [][]int) (int, int) {
+func CountVisibleAndScore(grid map[Point]int) (int, int) {
 	var visible int
 	var largestScore int
-	width := len(grid)
-	height := len(grid[0])
 
-	for y, row := range grid {
-		for x, tree := range row {
-			if y == 0 || x == 0 || x == len(row) -1 || y == len(grid) - 1 {
-				visible++
-				continue
-			}
-			leftHidden := false
-			rightHidden := false
-			upHidden := false
-			downHidden := false
-			leftScore := 0
-			rightScore := 0
-			upScore := 0
-			downScore := 0
+	for tree, height := range grid {
+		leftHidden := false
+		rightHidden := false
+		upHidden := false
+		downHidden := false
+		leftScore := 0
+		rightScore := 0
+		upScore := 0
+		downScore := 0
 
-			// check left
-			for xx, yy := x - 1, y; xx >= 0; xx-- {
-				leftScore++
-				if grid[yy][xx] >= tree {
-					leftHidden = true
-					break
-				}
+		// check left
+		cur := Point{tree.X - 1, tree.Y}
+		for curHeight, ok := grid[cur]; ok; curHeight, ok = grid[cur] {
+			leftScore++
+			if curHeight >= height {
+				leftHidden = true
+				break
 			}
-			// check up
-			for xx, yy := x, y - 1; yy >= 0; yy-- {
-				upScore++
-				if grid[yy][xx] >= tree {
-					upHidden = true
-					break
-				}
+			cur.X--
+		}
+		// check up
+		cur = Point{tree.X, tree.Y - 1}
+		for curHeight, ok := grid[cur]; ok; curHeight, ok = grid[cur] {
+			upScore++
+			if curHeight >= height {
+				upHidden = true
+				break
 			}
-			// check right
-			for xx, yy := x + 1, y; xx < width; xx++ {
-				rightScore++
-				if grid[yy][xx] >= tree {
-					rightHidden = true
-					break
-				}
+			cur.Y--
+		}
+
+		// check right
+		cur = Point{tree.X + 1, tree.Y}
+		for curHeight, ok := grid[cur]; ok; curHeight, ok = grid[cur] {
+			rightScore++
+			if curHeight >= height {
+				rightHidden = true
+				break
 			}
-			// check down
-			for xx, yy := x, y + 1; yy < height; yy++ {
-				downScore++
-				if grid[yy][xx] >= tree {
-					downHidden = true
-					break
-				}
+			cur.X++
+		}
+		// check down
+		cur = Point{tree.X, tree.Y + 1}
+		for curHeight, ok := grid[cur]; ok; curHeight, ok = grid[cur] {
+			downScore++
+			if curHeight >= height {
+				downHidden = true
+				break
 			}
-			if !upHidden || !downHidden || !leftHidden || !rightHidden {
-				visible++
-			}
-			score := leftScore * rightScore * upScore * downScore 
-			if score > largestScore {
-				largestScore = score
-			}
+			cur.Y++
+		}
+
+		if !upHidden || !downHidden || !leftHidden || !rightHidden {
+			visible++
+		}
+		score := leftScore * rightScore * upScore * downScore
+		if score > largestScore {
+			largestScore = score
 		}
 	}
+
 	return visible, largestScore
 }
