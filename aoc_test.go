@@ -393,3 +393,56 @@ func TestDay7NoSpaceLeftOnDevice(t *testing.T) {
 		}
 	})
 }
+
+func TestDay8TreetopTreeHouse(t *testing.T) {
+	t.Parallel()
+	day8example := "30373\n25512\n65332\n33549\n35390"
+	t.Run("part 1 example", func(t *testing.T) {
+		t.Parallel()
+		day8 := strings.NewReader(day8example)
+		grid, err := ParseGrid(day8)
+		if err != nil {
+			t.Fatal(err)
+		}
+		visible, _ := CountVisibleAndScore(grid)
+		if visible != 21 {
+			t.Errorf("unexpected visible count %v", visible)
+		}
+	})
+	t.Run("part 1", func(t *testing.T) {
+		t.Parallel()
+		day8 := MustOpen(t, "data/day8.txt")
+		grid, err := ParseGrid(day8)
+		if err != nil {
+			t.Fatal(err)
+		}
+		visible, _ := CountVisibleAndScore(grid)
+		if visible != 1560 {
+			t.Errorf("unexpected visible count %v", visible)
+		}
+	})
+	t.Run("part 2 example", func(t *testing.T) {
+		t.Parallel()
+		day8 := strings.NewReader(day8example)
+		grid, err := ParseGrid(day8)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, score := CountVisibleAndScore(grid)
+		if score != 8 {
+			t.Errorf("unexpected visibilityScore %v", score)
+		}
+	})
+	t.Run("part 2", func(t *testing.T) {
+		t.Parallel()
+		day8 := MustOpen(t, "data/day8.txt")
+		grid, err := ParseGrid(day8)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, score := CountVisibleAndScore(grid)
+		if score != 8 {
+			t.Errorf("unexpected visibity score %v", score)
+		}
+	})
+}

@@ -606,3 +606,88 @@ func SmallestDirToDelete(root *File) int {
 	})
 	return dirs[0].Size()
 }
+
+func ParseGrid(r io.Reader) ([][]int, error) {
+	scanner := bufio.NewScanner(r)
+	var grid [][]int
+	for scanner.Scan() {
+		var row []int
+		for _, treeS := range scanner.Text() {
+			tree, err := strconv.Atoi(string(treeS))
+			if err != nil {
+				return nil, err
+			}
+			row = append(row, tree)
+		}
+		grid = append(grid, row)
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	return grid, nil
+}
+
+func CountVisibleAndScore(grid [][]int) (int, int) {
+	var visible int
+	var largestScore int
+	width := len(grid)
+	height := len(grid[0])
+
+	for y, row := range grid {
+		for x, tree := range row {
+			if y == 0 || x == 0 || x == len(row) -1 || y == len(grid) - 1 {
+				visible++
+				continue
+			}
+			leftHidden := false
+			rightHidden := false
+			upHidden := false
+			downHidden := false
+			leftScore := 0
+			rightScore := 0
+			upScore := 0
+			downScore := 0
+
+			// check left
+			for xx, yy := x - 1, y; xx >= 0; xx-- {
+				leftScore++
+				if grid[yy][xx] >= tree {
+					leftHidden = true
+					break
+				}
+			}
+			// check up
+			for xx, yy := x, y - 1; yy >= 0; yy-- {
+				upScore++
+				if grid[yy][xx] >= tree {
+					upHidden = true
+					break
+				}
+			}
+			// check right
+			for xx, yy := x + 1, y; xx < width; xx++ {
+				rightScore++
+				if grid[yy][xx] >= tree {
+					rightHidden = true
+					break
+				}
+			}
+			// check down
+			for xx, yy := x, y + 1; yy < height; yy++ {
+				downScore++
+				if grid[yy][xx] >= tree {
+					downHidden = true
+					break
+				}
+			}
+			if !upHidden || !downHidden || !leftHidden || !rightHidden {
+				visible++
+			}
+			score := leftScore * rightScore * upScore * downScore 
+			if score > largestScore {
+				largestScore = score
+			}
+		}
+	}
+	return visible, largestScore
+}
